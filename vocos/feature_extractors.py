@@ -182,14 +182,6 @@ class WavLMVAEFeatures(FeatureExtractor):
             nn.LayerNorm(latent_dim, eps=1e-6)
         )      
         
-        if self.use_temporal_downsampling:
-            self.temporal_down = nn.Conv1d(
-                latent_dim, latent_dim, kernel_size=4, stride=2, padding=1
-            )
-            # 对称的上采样层 (Upsampling)
-            self.temporal_up = nn.ConvTranspose1d(
-                latent_dim, latent_dim, kernel_size=4, stride=2, padding=1
-            )
         if self.use_vae:
             self.fc_mu = nn.Linear(latent_dim, latent_dim)
             self.fc_var = nn.Linear(latent_dim, latent_dim)
@@ -263,10 +255,6 @@ class WavLMVAEFeatures(FeatureExtractor):
         z = self.enc_projection(hidden_states)
 
         origin_len = z.size(1)
-        if self.use_temporal_downsampling:
-            z = z.transpose(1, 2) 
-            z = self.temporal_down(z)
-            z = z.transpose(1, 2) # [B, T/2, D]
         
         if self.use_vae:
             mu = self.fc_mu(z)
@@ -278,20 +266,6 @@ class WavLMVAEFeatures(FeatureExtractor):
         else: # ae
             z_hat = z
             kl_loss = torch.tensor(0.0, device=device)
-
-        z_hat_decoded = z_hat
-        if self.use_temporal_downsampling:
-            z_hat_decoded = z_hat_decoded.transpose(1, 2) # [B, D, T/2]
-            z_hat_decoded = self.temporal_up(z_hat_decoded) # [B, D, T_rec]
-            z_hat_decoded = z_hat_decoded.transpose(1, 2) # [B, T_rec, D]
-            
-            if z_hat_decoded.size(1) != origin_len:
-                if z_hat_decoded.size(1) > origin_len:
-                    z_hat_decoded = z_hat_decoded[:, :origin_len, :]
-                else:
-                    pad_len = origin_len - z_hat_decoded.size(1)
-                    z_hat_decoded = F.pad(z_hat_decoded, (0, 0, 0, pad_len))
-        z_hat =  z_hat_decoded
 
         hidden_states = self.dec_projection(z_hat)
         
