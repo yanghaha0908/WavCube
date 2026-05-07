@@ -1,0 +1,101 @@
+# pytorch_lightning==1.8.6
+seed_everything: 4444
+
+data:
+  class_path: vocos.dataset.VocosDataModule
+  init_args:
+    train_params:
+      filelist_path: data/librispeech_train
+      sampling_rate: 16000
+      num_samples: 160000
+      batch_size: 8
+      num_workers: 8
+
+    val_params:
+      filelist_path: data/librispeech_test_clean
+      sampling_rate: 16000
+      num_samples: 160000
+      batch_size: 8
+      num_workers: 8
+
+model:
+  class_path: vocos.experiment.MiMoWavLMVAEExp
+  init_args:
+    sample_rate: 16000
+    initial_learning_rate: 1e-4
+    mel_loss_coeff: 4.5
+    mrd_loss_coeff: 1
+    kl_loss_coeff: 0.0001
+    sr_loss_coeff: 1
+    gan_loss_coeff: 0.1
+    num_warmup_steps: 5000 # Optimizers warmup steps
+    pretrain_mel_steps: 0  # 0 means GAN objective from the first iteration
+
+    # automatic evaluation
+    evaluate_sim: true
+    evaluate_utmos: true
+    evaluate_stoi: false
+    evaluate_pesq_wb: false
+    evaluate_pesq: true
+    evaluate_periodicty: false
+
+    feature_extractor:
+      class_path: vocos.feature_extractors.WavLMVAEFeatures
+      init_args:
+        model_id: ckpts/wavlm-large
+        layer_idx: -1
+        freeze_model: true
+        latent_dim: 128
+        stage: 2
+        stage1_ckpt_path: logs/wavlmvae-mimo-librispeech-stage1_kl1e-4_ae_300mdeco/first/version_2/checkpoints/vocos_checkpoint_epoch=219_step=138000_val_loss=6.6572.ckpt
+        use_vae: false
+    
+    backbone:
+      class_path: vocos.models.MiMoBackbone
+      init_args: #维度默认参数
+        latent_dim: 128
+        d_model: 1024
+        decoder_attention_heads: 16
+        decoder_ffn_dim: 4096
+        decoder_layers: 24
+        sampling_rate: 16000
+        hop_length: 160
+        window_size: 640
+        nfft: 640
+        upsample: true
+
+trainer:
+  num_nodes: 8
+  devices: 8
+  strategy: ddp
+  # val_check_interval: 1000
+  # precision: 16
+  logger:
+    class_path: pytorch_lightning.loggers.TensorBoardLogger
+    init_args:
+      save_dir: logs/wavlmvae-mimo-librispeech-stage2_kl1e-4_ae_300mdeco
+      name: first
+  callbacks:
+    - class_path: pytorch_lightning.callbacks.LearningRateMonitor
+    - class_path: pytorch_lightning.callbacks.ModelSummary
+      init_args:
+        max_depth: 2
+    - class_path: pytorch_lightning.callbacks.ModelCheckpoint
+      init_args:
+        monitor: val_loss #存ckpt会和val_loss强绑定，如果还没出val_loss，只会存一个save_last的last.pt
+        filename: vocos_checkpoint_{epoch}_{step}_{val_loss:.4f}
+        save_top_k: -1
+        save_last: true
+        # every_n_epochs: 1
+        every_n_train_steps: 5000
+    - class_path: vocos.helpers.GradNormCallback
+
+  # Lightning calculates max_steps across all optimizer steps (rather than number of batches)
+  # This equals to 1M steps per generator and 1M per discriminator
+  max_steps: 1000000
+  # You might want to limit val batches when evaluating all the metrics, as they are time-consuming
+  limit_val_batches: 100
+  accelerator: gpu
+  strategy: ddp
+  devices: [0,1,2,3,4,5,6,7]
+  log_every_n_steps: 50
