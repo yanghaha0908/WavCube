@@ -5,8 +5,6 @@ from torch import nn
 from torch.nn.utils import weight_norm
 
 from vocos.modules import ConvNeXtBlock, ResBlock1, AdaLayerNorm
-from dac.model.dac import Decoder
-from dac.model.dac import init_weights
 from mimo_audio_tokenizer.model import AudioDecoder
 from mimo_audio_tokenizer.config import MiMoAudioTokenizerConfig
 

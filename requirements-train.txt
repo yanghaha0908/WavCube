@@ -4,5 +4,4 @@ transformers
 matplotlib
 torchcrepe
 pesq
-fairseq
 torchmetrics

@@ -1,5 +1,9 @@
 # WavCube: Unifying Speech Representation for Understanding and Generation via Semantic-Acoustic Joint Modeling
 
+<p align="center">
+  <img src="doc/wavcube_logo.png" alt="WavCube Logo" width="400"/>
+</p>
+
 [![github](https://img.shields.io/badge/Code-Repo-black?logo=github)](https://github.com/yanghaha0908/WavCube)
 [![arXiv](https://img.shields.io/badge/%F0%9F%93%84%20ArXiv-Paper-red.svg)](https://arxiv.org/abs/2605.06407)
 [![model](https://img.shields.io/badge/%F0%9F%A4%97%20WavCube-Models-blueviolet)](https://huggingface.co/yhaha/WavCube)
@@ -9,38 +13,41 @@ WavCube is a 128-dim, 50Hz continuous representation that unifies speech underst
 reconstruction, and generation within a single space.
 This is the official code for the paper [WavCube: Unifying Speech Representation for Understanding and Generation via Semantic-Acoustic Joint Modeling](https://arxiv.org/pdf/2605.06407) [[abs](https://arxiv.org/abs/2605.06407)].
 
-<!-- ## ✨ Key Features
-- **[Feature 1]** – description.
-- **[Feature 2]** – description.
-- **[Feature 3]** – description.
+## ✨ Key Features
+- **Unified Speech Representation** – A single continuous latent space that simultaneously supports speech understanding, reconstruction, and generation.
+- **Semantic-Acoustic Joint Modeling** – Harmonizes high-level semantic structures with low-level acoustic textures.
+- **Compact & Diffusion-Friendly** – Features a compact 128-dimensional bottleneck (8x compression from standard SSL features) enabling easier diffusion modeling.
+<!-- By infusing fine-grained acoustic details into a distilled SSL semantic manifold, -->
 
-## 🎧 Samples
-To get a quick sense of our model's performance, please check out the [Demo Page](https://[YOUR_DEMO_PAGE]). **Comprehensive benchmarks covering a variety of baselines are available on this page.** -->
 
-<!-- ## 🛠️ Installation
 
-We recommend creating a fresh conda environment for installation.
+## 🛠️ Installation
 
+We recommend creating a fresh conda environment for installation. 
 ### Env Setup
 ```bash
-conda create -n WavCube python=3.9 -y
+conda create -n WavCube python=3.10 -y
 conda activate WavCube
 ```
 
 ### Basic Requirements
-Please change `cu121` in the command to match your local CUDA version.
 ```bash
-pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
-pip install packaging ninja cmake pybind11 pytorch_lightning transformers
-conda install -c conda-forge 'ffmpeg<7'
+git clone https://github.com/yanghaha0908/WavCube.git
+cd WavCube
+pip install -e ./
 ```
 
-Afterwards, you can clone this repository and install the remaining dependencies:
 ```bash
-git clone https://github.com/[YOUR_GITHUB_REPO].git
-cd WavCube
-pip install -r requirements.txt
-``` -->
+pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 --index-url https://download.pytorch.org/whl/cu126
+pip install -r requirements-train.txt
+pip install encodec
+pip install pytorch_lightning==1.8.6
+pip install -U "jsonargparse[signatures]>=4.15.2"
+pip install pystoi
+pip install omegaconf
+conda install -c conda-forge sox ffmpeg libsndfile
+pip install "matplotlib<3.8"
+```
 
 ## 🚀 Quick Start
 

@@ -156,6 +156,7 @@ class VocosEmiliaDataset(Dataset):
                 else:
                     # --- LibriTTS,Emilia 格式 ---
                     audio_path = line
+                    audio_path = audio_path.replace("/apdcephfs_sh7/share_302528826","/apdcephfs_tj5/share_303787284")
                     start_sec = 0.0
                     duration_sec = None  # 读全长                
 
