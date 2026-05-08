@@ -86,6 +86,64 @@ python feature_to_wav.py \
 - For devices that do not support BF16, you can manually disable PyTorch's mixed precision manager.
 - If you encounter any issues or have questions, please feel free to open an issue. -->
 
+## 🔧 Training
+
+WavCube employs a **two-stage training** pipeline, all scripts are located in `scripts/train/`.
+
+```bash
+# ----------------- WavCube -----------------
+bash scripts/train/train_WavCube_stage1.sh
+bash scripts/train/train_WavCube_stage2.sh
+
+# --------------- WavCube-Pro ---------------
+bash scripts/train/train_WavCube_pro_stage1.sh
+bash scripts/train/train_WavCube_pro_stage2.sh
+# Note: Update `RESUME_CKPT` in the script below to your Stage 1 checkpoint before running.
+```
+
+## 🤝 Additional Resources
+
+### Evaluation Checkpoints
+
+To make it easier to reproduce our results, we have uploaded supplementary resources to our 🤗 [WavCube](https://huggingface.co/yhaha/WavCube/tree/main/ckpts). These include the `wavlm-large` weights and the necessary evaluation checkpoints for computing metrics such as WER, Speaker Similarity, and UTMOS.
+
+```bash
+# For offline testing or if you experience network connectivity issues, you can manually copy the checkpoints to your local cache:
+cp -r ckpts/hub ~/.cache/torch/
+mkdir -p ~/.cache/torch/hub/checkpoints/ 
+cp ckpts/utmos22_strong_step7459_v1.pt ~/.cache/torch/hub/checkpoints/ 
+cp -r ckpts/s3prl ~/.cache
+```
+
+### Data Preparation
+
+**Small-scale data** — uses `VocosDataModule`. Prepare a filelist of audio paths for training and validation:
+
+```bash
+find $TRAIN_DATASET_DIR -name "*.wav" > filelist.train
+find $VAL_DATASET_DIR -name "*.wav" > filelist.val
+```
+
+Each line is a plain audio path, for example:
+```
+/data/LibriSpeech/test-clean/672/122797/672-122797-0026.flac
+/data/LibriSpeech/test-clean/672/122797/672-122797-0071.flac
+/data/LibriSpeech/test-clean/672/122797/672-122797-0037.flac
+```
+
+**Large-scale data** — uses `VocosEmiliaDataModule`. Two files are required:
+
+1. **Filelist** — same format as above for LibriSpeech; for LibriHeavy, each line is a JSON entry, for example:
+```json
+{"id": "medium/968/.../voyagesdolittle_55_lofting_64kb_38", "start": 22.32, "duration": 19.36, "channel": 0, "recording": {"sources": [{"source": "download/librilight/medium/968/.../voyagesdolittle_55_lofting_64kb.flac"}], "sampling_rate": 16000}, "type": "MonoCut"}
+```
+
+2. **Index file** (`.idx`) — a byte-offset index for fast random access, generated via:
+```bash
+python data/generate_idx.py
+```
+<!-- Pre-built `.idx` files for common datasets are also available on [HuggingFace](https://huggingface.co/yhaha/WavCube/tree/main/ckpts). -->
+
 ## ❤️ Acknowledgements
 
 We sincerely thank the authors of the following open-source projects, whose excellent work laid the foundation for WavCube: [Vocos](https://github.com/gemelo-ai/vocos), [Semantic-VAE](https://github.com/ZhikangNiu/Semantic-VAE), [MiMo-Audio-Tokenizer](https://github.com/XiaomiMiMo/MiMo-Audio-Tokenizer).
