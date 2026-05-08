@@ -163,7 +163,7 @@ logs/
 *.pt
 *.ckpt
 
-ckpts/
+ckpts
 data/
 .vscode/
 scripts/
