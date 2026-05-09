@@ -34,19 +34,9 @@ conda activate WavCube
 ```bash
 git clone https://github.com/yanghaha0908/WavCube.git
 cd WavCube
-pip install -e ./
-```
-
-```bash
 pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 --index-url https://download.pytorch.org/whl/cu126
-pip install -r requirements-train.txt
-pip install encodec
-pip install pytorch_lightning==1.8.6
-pip install -U "jsonargparse[signatures]>=4.15.2"
-pip install pystoi
-pip install omegaconf
 conda install -c conda-forge sox ffmpeg libsndfile
-pip install "matplotlib<3.8"
+pip install -e ".[train]"
 ```
 
 ## 🚀 Quick Start
@@ -147,7 +137,7 @@ Example data manifest files for both formats are provided in the `data/` directo
 
 ## ❤️ Acknowledgements
 
-We sincerely thank the authors of the following open-source projects, whose excellent work laid the foundation for WavCube: [Vocos](https://github.com/gemelo-ai/vocos), [Semantic-VAE](https://github.com/ZhikangNiu/Semantic-VAE), [MiMo-Audio-Tokenizer](https://github.com/XiaomiMiMo/MiMo-Audio-Tokenizer).
+We sincerely thank the authors of the following open-source projects, whose excellent work laid the foundation for WavCube: [Semantic-VAE](https://github.com/ZhikangNiu/Semantic-VAE), [F5-TTS](https://github.com/swivid/f5-tts), [Vocos](https://github.com/gemelo-ai/vocos), [MiMo-Audio-Tokenizer](https://github.com/XiaomiMiMo/MiMo-Audio-Tokenizer), [s3prl](https://github.com/s3prl/s3prl).
 
 
 

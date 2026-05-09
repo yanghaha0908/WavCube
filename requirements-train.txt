@@ -1,7 +1,9 @@
 pytorch_lightning==1.8.6
-jsonargparse[signatures]
+jsonargparse[signatures]>=4.15.2
 transformers
-matplotlib
+matplotlib<3.8
 torchcrepe
 pesq
 torchmetrics
+pystoi
+omegaconf

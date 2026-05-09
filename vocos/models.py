@@ -79,7 +79,7 @@ class VocosBackbone(Backbone):
         bandwidth_id = kwargs.get('bandwidth_id', None)
         if x.shape[1] != self.embed.in_channels:
             x = x.transpose(1,2)
-        x = self.embed(x) #-> torch.Size([16, 512, 149]) torch.Size([14, 499, 128])->
+        x = self.embed(x)
         if self.adanorm:
             assert bandwidth_id is not None
             x = self.norm(x.transpose(1, 2), cond_embedding_id=bandwidth_id)
@@ -89,7 +89,7 @@ class VocosBackbone(Backbone):
         for conv_block in self.convnext:
             x = conv_block(x, cond_embedding_id=bandwidth_id)
         x = self.final_layer_norm(x.transpose(1, 2))
-        return x #torch.Size([14, 499, 512])
+        return x #(B, T, D)
 
 
 class VocosResNetBackbone(Backbone):
@@ -166,7 +166,6 @@ class MiMoBackbone(Backbone):
         return recon_wav
     
     def load_from_ckpt(self, model_path):
-        model_path = model_path.replace("/apdcephfs_sh7/share_302528826","/apdcephfs_tj5/share_303787284")
         print(f"Loading weights from {model_path}...")
         state_dict = torch.load(model_path, map_location='cpu')
 

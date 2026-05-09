@@ -253,8 +253,6 @@ class WavLMVAEFeatures(FeatureExtractor):
             hidden_states, position_bias = layer_outputs[:2]
 
         z = self.enc_projection(hidden_states)
-
-        origin_len = z.size(1)
         
         if self.use_vae:
             mu = self.fc_mu(z)
@@ -289,6 +287,7 @@ class WavLMVAEFeatures(FeatureExtractor):
             sr_loss = sr_loss_recon + sr_loss_ssl
         return z_hat, kl_loss, sr_loss, sr_loss_recon, sr_loss_ssl
     
+    @torch.no_grad()
     def infer(self, audio, **kwargs):
         output_attentions=False
         device = audio.device
