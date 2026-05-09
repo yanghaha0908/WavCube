@@ -98,7 +98,7 @@ bash scripts/train/train_WavCube_stage2.sh
 # --------------- WavCube-Pro ---------------
 bash scripts/train/train_WavCube_pro_stage1.sh
 bash scripts/train/train_WavCube_pro_stage2.sh
-# Note: Update `RESUME_CKPT` in the script below to your Stage 1 checkpoint before running.
+# Note: Update `stage1_ckpt_path` in config to your Stage 1 checkpoint before running.
 ```
 
 ## 🤝 Additional Resources
@@ -108,9 +108,8 @@ bash scripts/train/train_WavCube_pro_stage2.sh
 To make it easier to reproduce our results, we have uploaded supplementary resources to our 🤗 [WavCube](https://huggingface.co/yhaha/WavCube/tree/main/ckpts). These include the `wavlm-large` weights and the necessary evaluation checkpoints for computing metrics such as WER, Speaker Similarity, and UTMOS.
 
 ```bash
-# For offline testing or if you experience network connectivity issues, you can manually copy the checkpoints to your local cache:
+# For offline testing or if you experience network issues, you can manually copy the checkpoints to your local cache:
 cp -r ckpts/hub ~/.cache/torch/
-mkdir -p ~/.cache/torch/hub/checkpoints/ 
 cp ckpts/utmos22_strong_step7459_v1.pt ~/.cache/torch/hub/checkpoints/ 
 cp -r ckpts/s3prl ~/.cache
 ```
@@ -142,7 +141,9 @@ Each line is a plain audio path, for example:
 ```bash
 python data/generate_idx.py
 ```
-<!-- Pre-built `.idx` files for common datasets are also available on [HuggingFace](https://huggingface.co/yhaha/WavCube/tree/main/ckpts). -->
+
+Example data manifest files for both formats are provided in the `data/` directory for reference.
+
 
 ## ❤️ Acknowledgements
 

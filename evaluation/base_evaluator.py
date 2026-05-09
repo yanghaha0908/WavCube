@@ -61,19 +61,3 @@ class BaseQualityEvaluator:
             return metric_function(**kwargs)
         else:
             raise ValueError(f"Metric {metric_name} is not implemented.")
-
-    def build_path_pairs(self, path1: Path, path2: Path = None, suffix1: str = None, suffix2: str = None):
-        """build path pairs of compared data.
-
-        Args;
-            path1 (Path):
-            path2 (Path): if the generated data and gt data are stored in different folder,
-                path2 should be provided.
-            suffix1 (src): 
-                suffix of data1, e.g., '_rec'
-            suffix2 (src):
-                suffix of data2, e.g., '_gt'
-            
-                
-        """
-        

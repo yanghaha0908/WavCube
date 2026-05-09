@@ -76,12 +76,13 @@ class SpeechQualityEvaluator(BaseQualityEvaluator):
         for ref_text, rec_np in tqdm(zip(ref_texts, rec_list), 
                                     total=len(ref_texts), 
                                     desc="Calculating WER"):
-            # hubert
+            # ------- hubert -------
             # audio = torch.from_numpy(rec_np).float().unsqueeze(0).to(self.device)
             # logits = self.hubert(audio).logits
             # predicted_ids = torch.argmax(logits, dim=-1)
             # transcription = self.processor.decode(predicted_ids[0])
-            # fast-whisper
+
+            # ------- fast-whisper -------
             segments, _ = self.whisper.transcribe(rec_np, beam_size=5, language="en")
             hypo = ""
             for segment in segments:
@@ -104,6 +105,7 @@ class SpeechQualityEvaluator(BaseQualityEvaluator):
             wer = measures["wer"]
             wer_results.append(wer)
 
+            # ------- hubert -------
             # transcription = characterize(transcription)
             # transcription = normalize(transcription, [], False, None)
             # ref_text = characterize(ref_text)

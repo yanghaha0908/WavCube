@@ -72,7 +72,7 @@ trainer:
   logger:
     class_path: pytorch_lightning.loggers.TensorBoardLogger
     init_args:
-      save_dir: logs/wavlmvae-mimo-librispeech-stage1_kl1e-4_ae_300mdeco
+      save_dir: logs/WavCube-stage1
       name: first
   callbacks:
     - class_path: pytorch_lightning.callbacks.LearningRateMonitor
@@ -81,7 +81,7 @@ trainer:
         max_depth: 2
     - class_path: pytorch_lightning.callbacks.ModelCheckpoint
       init_args:
-        monitor: val_loss #存ckpt会和val_loss强绑定，如果还没出val_loss，只会存一个save_last的last.pt
+        monitor: val_loss
         filename: vocos_checkpoint_{epoch}_{step}_{val_loss:.4f}
         save_top_k: -1
         save_last: true
