@@ -146,14 +146,11 @@ We sincerely thank the authors of the following open-source projects, whose exce
 If you find this repo helpful, please cite our work:
 
 ```bibtex
-@misc{[CITATION_KEY],
-      title={[Paper Title Placeholder]},
-      author={[Author List]},
-      year={2025},
-      eprint={[ARXIV_ID]},
-      archivePrefix={arXiv},
-      primaryClass={cs.SD},
-      url={https://arxiv.org/abs/[ARXIV_ID]},
+@article{yang2026wavcube,
+  title={WavCube: Unifying Speech Representation for Understanding and Generation via Semantic-Acoustic Joint Modeling},
+  author={Yang, Guanrou and Tan, Tian and Chen, Qian and Niu, Zhikang and Song, Yakun and Ma, Ziyang and Chen, Yushen and Xie, Zeyu and Wang, Tianrui and Yang, Yifan and others},
+  journal={arXiv preprint arXiv:2605.06407},
+  year={2026}
 }
 ```
 
