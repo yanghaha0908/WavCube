@@ -440,7 +440,7 @@ if __name__ == '__main__':
                 if word not in default_clusters[default_cluster_name]:
                     default_clusters[default_cluster_name][word] = 1
                 default_words[word] = default_cluster_name
-        result = calculator.calculate(lab, rec)#这个是计算每个utt的wer，对应N,C,S,D,I
+        result = calculator.calculate(lab, rec)# computes the WER for each utt, corresponding to N,C,S,D,I
         if verbose:
             if result['all'] != 0:
                 wer = float(result['ins'] + result['sub'] +

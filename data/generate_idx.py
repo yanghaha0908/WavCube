@@ -5,59 +5,59 @@ import tqdm
 
 def generate_index(data_path, idx_path):
     """
-    生成用于随机读取的偏移量索引文件 (.idx)
+    Generate an offset index file (.idx) for random reads
     """
     if not os.path.exists(data_path):
-        print(f"❌ 错误: 找不到输入文件 {data_path}")
+        print(f"❌ Error: input file not found {data_path}")
         return
 
-    print(f"正在为 {data_path} 生成索引...")
-    print(f"输出路径: {idx_path}")
+    print(f"Generating index for {data_path}...")
+    print(f"Output path: {idx_path}")
 
     offset = 0
-    # 注意：输入文件必须用 'rb' (二进制) 读取，以确保字节偏移量准确
+    # Note: the input file must be read in 'rb' (binary) mode to ensure byte offsets are accurate
     with open(data_path, 'rb') as f_in, open(idx_path, 'w') as f_out:
         for line in tqdm.tqdm(f_in, desc="Processing lines", unit=" lines"):
             f_out.write(f"{offset}\n")
             offset += len(line)
 
-    print(f"✅ 索引生成完毕！")
+    print(f"✅ Index generation complete!")
     print("-" * 30)
 
-    # === 验证环节（只读首尾两行，不把全部 idx 加载进内存）===
-    print("正在验证索引准确性...")
+    # === Verification step (only reads the first and last lines, does not load the entire idx into memory) ===
+    print("Verifying index accuracy...")
     try:
-        # 读取第一个偏移量
+        # Read the first offset
         with open(idx_path, 'r') as f_idx:
             first_offset = int(f_idx.readline().strip())
 
-        # 读取最后一个偏移量（逐行扫描，内存只保留当前行）
+        # Read the last offset (scan line by line, keeping only the current line in memory)
         last_offset = first_offset
         total_lines = 0
         with open(idx_path, 'r') as f_idx:
             for line in f_idx:
                 last_offset = int(line.strip())
                 total_lines += 1
-        print(f"总行数: {total_lines}")
+        print(f"Total lines: {total_lines}")
 
-        # 用二进制模式 seek，避免跨平台文本模式问题
+        # Use binary mode seek to avoid cross-platform text mode issues
         with open(data_path, 'rb') as f_data:
             f_data.seek(first_offset)
             line1 = f_data.readline().decode('utf-8', errors='replace').strip()
-            print(f"第 1 行内容: {line1[:100]}")
+            print(f"Line 1 content: {line1[:100]}")
 
             f_data.seek(last_offset)
             line_last = f_data.readline().decode('utf-8', errors='replace').strip()
-            print(f"最后一行内容: {line_last[:100]}")
+            print(f"Last line content: {line_last[:100]}")
 
     except Exception as e:
-        print(f"❌ 验证失败: {e}")
+        print(f"❌ Verification failed: {e}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="为大文件生成随机读取的偏移量索引 (.idx)")
-    parser.add_argument("--input", "-i", required=True, help="输入文件路径")
-    parser.add_argument("--output", "-o", default=None, help="输出 .idx 文件路径（默认为 input + .idx）")
+    parser = argparse.ArgumentParser(description="Generate an offset index (.idx) for random reads of large files")
+    parser.add_argument("--input", "-i", required=True, help="Input file path")
+    parser.add_argument("--output", "-o", default=None, help="Output .idx file path (defaults to input + .idx)")
     args = parser.parse_args()
 
     input_file = args.input

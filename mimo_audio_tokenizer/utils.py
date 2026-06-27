@@ -145,7 +145,7 @@ def get_sequence_mask(inputs, inputs_length):
         bsz, tgt_len = inputs_length.shape[0], torch.max(inputs_length)
     sequence_mask = torch.arange(0, tgt_len).to(inputs.device)
     sequence_mask = torch.lt(sequence_mask, inputs_length.reshape(bsz, 1)).view(bsz, tgt_len, 1)
-    unpacking_index = torch.cumsum(sequence_mask.to(torch.int64).view(-1), dim=0) - 1  # 转成下标
+    unpacking_index = torch.cumsum(sequence_mask.to(torch.int64).view(-1), dim=0) - 1  # convert to index
     return sequence_mask, unpacking_index
 
 

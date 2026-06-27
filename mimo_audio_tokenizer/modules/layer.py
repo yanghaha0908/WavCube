@@ -152,8 +152,8 @@ class Attention(nn.Module):
         attn_output = flash_attn_varlen_func(#query_states,
                                             #  key_states,
                                             #  value_states,
-                                             query_states.to(torch.float16),  # <--- 强制转 fp16
-                                             key_states.to(torch.float16),    # <--- 强制转 fp16
+                                             query_states.to(torch.float16),  # <--- force-cast to fp16
+                                             key_states.to(torch.float16),    # <--- force-cast to fp16
                                              value_states.to(torch.float16),
                                              cu_len,
                                              cu_len,

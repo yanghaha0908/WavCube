@@ -37,7 +37,7 @@ class SpeechQualityEvaluator(BaseQualityEvaluator):
 
     def pesq_score(
         self, rec_waveform: np.ndarray, ref_waveform: np.ndarray,
-    ):  #顺序是preds target 看了文档
+    ):  #order is preds, target — checked the docs
         pesq_nb = self.pesq_nb(
             torch.from_numpy(rec_waveform).float(),
             torch.from_numpy(ref_waveform).float(),
@@ -52,7 +52,7 @@ class SpeechQualityEvaluator(BaseQualityEvaluator):
 
     def stoi_score(
         self, rec_waveform: np.ndarray, ref_waveform: np.ndarray,
-    ): #顺序是preds target 看了文档
+    ): #order is preds, target — checked the docs
         return self.stoi(
             torch.from_numpy(rec_waveform).float(),
             torch.from_numpy(ref_waveform).float(),

@@ -3,7 +3,7 @@ MASTER_PORT=12345
 NUM_GPUS=${NUM_GPUS:-8}
 EXP_NAME="WavCube-stage2"
 
-# Stage 2 需要从 Stage 1 的 checkpoint 恢复
+# Stage 2 must resume from the Stage 1 checkpoint
 RESUME_CKPT=PATH_TO_STAGE1_CHECKPOINT
 
 

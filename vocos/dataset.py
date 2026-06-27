@@ -52,7 +52,7 @@ class VocosDataset(Dataset):
         return len(self.filelist)
 
     def __getitem__(self, index: int) -> torch.Tensor:
-        max_retries = 5  # 最大重试次数，防止卡住
+        max_retries = 5  # max number of retries, to avoid getting stuck
         retries = 0
         while retries < max_retries:
             audio_path = self.filelist[index]
@@ -126,13 +126,13 @@ class VocosEmiliaDataset(Dataset):
         return len(self.offsets)
 
     def _get_file_handle(self):
-        """获取当前进程的文件句柄，如果不存在则创建"""
+        """Get the file handle for the current process, creating it if it does not exist"""
         if self.jsonl_file is None:
             self.jsonl_file = open(self.jsonl_path, 'r', encoding='utf-8')
         return self.jsonl_file
 
     def _read_jsonl_line(self, index):
-        """根据 offset 读取并解析 jsonl"""
+        """Read and parse jsonl based on offset"""
         offset = self.offsets[index]
         f = self._get_file_handle()
         f.seek(offset)
@@ -140,25 +140,25 @@ class VocosEmiliaDataset(Dataset):
         return line
 
     def __getitem__(self, index: int) -> torch.Tensor:
-        max_retries = 5  # 最大重试次数，防止卡住
+        max_retries = 5  # max number of retries, to avoid getting stuck
         retries = 0
         while retries < max_retries:
             line = self._read_jsonl_line(index)
             try:
                 if line.startswith('{'):
-                    # --- Libriheavy 格式 ---
+                    # --- Libriheavy format ---
                     data = json.loads(line)
                     rel_path = data['recording']['sources'][0]['source']
                     audio_path = os.path.join(self.libriheavy_root, rel_path)
                     start_sec = data['start']
                     duration_sec = data['duration']
                 else:
-                    # --- LibriTTS,Emilia 格式 ---
+                    # --- LibriTTS,Emilia format ---
                     audio_path = line
                     start_sec = 0.0
-                    duration_sec = None  # 读全长                
+                    duration_sec = None  # read full length
 
-                # 2. 高效读取片段                
+                # 2. Read the segment efficiently
                 if duration_sec is not None:
                     start_frame = int(start_sec * self.sampling_rate)
                     num_frames = int(duration_sec * self.sampling_rate)
@@ -188,7 +188,7 @@ class VocosEmiliaDataset(Dataset):
             except Exception as e:
                 print(f"[WARN] Failed to load {audio_path}: {e}")
                 retries += 1
-                index = (index + 1) % len(self.offsets)  # 移动到下一个音频文件
+                index = (index + 1) % len(self.offsets)  # move to the next audio file
                 if retries == max_retries:
                     raise RuntimeError(f"Failed to load a valid audio file after {max_retries} retries.")
         

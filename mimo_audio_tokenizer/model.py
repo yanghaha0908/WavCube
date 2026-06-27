@@ -118,7 +118,7 @@ class AudioEncoder(nn.Module):
     @torch.no_grad()
     def get_features_50hz(self, input_features, input_lens):
         """
-        与 get_features 逻辑完全一致，但在 Transformer 层后停止，跳过最后的 down_sample 模块。
+        Identical logic to get_features, but stops after the Transformer layers, skipping the final down_sample module.
         """
         output_length = self.get_output_length(input_lens)
             
@@ -143,8 +143,8 @@ class AudioEncoder(nn.Module):
         hidden_states = self.layer_norm(hidden_states)
         hidden_states = unpacking(hidden_states, output_length)
 
-        # 此处删除了关于 avg_pooler 的 padding 和 down_sample_layer 卷积逻辑
-        # 仅保留 unpacking 后的 hidden_states 和对应的 output_length (此时已由 conv2 决定)
+        # The avg_pooler padding and down_sample_layer convolution logic has been removed here
+        # Only the unpacked hidden_states and the corresponding output_length are kept (now determined by conv2)
         hidden_states = self.adapter(hidden_states) #B,T,D
         
         return hidden_states, output_length #B,T,D
@@ -348,14 +348,14 @@ class AudioDecoder(nn.Module):
         assert (audio_embed.shape[-1] == self.config.d_model)
         audio_embed = audio_embed.to(self.layer_norm.weight)
         # ==========================================================
-        # 修改点：跳过 self.dconv1 (第一个升采样层)
-        # 原逻辑：audio_embed, output_length = self.dconv1(audio_embed, input_length, output_dim=3)
-        # 新逻辑：直接透传。
-        #         因为输入已经是 50Hz，且 Transformer 本身就是在 50Hz 分辨率下工作的，
-        #         所以我们不需要 dconv1 将 25Hz 升到 50Hz。
+        # Modification: skip self.dconv1 (the first upsampling layer)
+        # Original logic: audio_embed, output_length = self.dconv1(audio_embed, input_length, output_dim=3)
+        # New logic: pass through directly.
+        #         Since the input is already 50Hz and the Transformer itself operates at 50Hz resolution,
+        #         we do not need dconv1 to upsample from 25Hz to 50Hz.
         # ==========================================================
         hidden_states = audio_embed
-        output_length = input_length  # 长度保持不变 (50Hz)
+        output_length = input_length  # length stays unchanged (50Hz)
 
         position_ids = get_position_ids(output_length).long().to(hidden_states.device)
         rope_position_embeddings = self.position_embedding(hidden_states, position_ids)

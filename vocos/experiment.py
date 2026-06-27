@@ -266,7 +266,7 @@ class VocosExp(pl.LightningModule):
         else:
             pesq_score = torch.zeros(1, device=self.device)
             
-        if self.hparams.evaluate_pesq_wb: #PESQ 是 CPU 密集型
+        if self.hparams.evaluate_pesq_wb: #PESQ is CPU-intensive
             pesq_nb = self.pesq_nb(audio_hat_16khz, audio_16_khz)
             pesq_wb = self.pesq_wb(audio_hat_16khz, audio_16_khz)
         else:
@@ -301,7 +301,7 @@ class VocosExp(pl.LightningModule):
             *_, audio_in, audio_pred = outputs[0].values()
             self.logger.experiment.add_audio(
                 "val_in", audio_in.data.cpu().numpy(), self.global_step, self.hparams.sample_rate
-            ) #batch的第一条音频
+            ) #first audio clip in the batch
             self.logger.experiment.add_audio(
                 "val_pred", audio_pred.data.cpu().numpy(), self.global_step, self.hparams.sample_rate
             )
@@ -362,19 +362,19 @@ class VocosExp(pl.LightningModule):
             self.mel_loss_coeff = self.base_mel_coeff * mel_loss_coeff_decay(self.global_step + 1)
 
 
-    # 1. 存的时候剔除（为了未来）
+    # 1. Remove on save (for the future)
     def on_save_checkpoint(self, checkpoint):
         state_dict = checkpoint["state_dict"]
         keys_to_remove = [k for k in state_dict.keys() if k.startswith("utmos.")]
         for k in keys_to_remove:
             del state_dict[k]
 
-    # 2. 读的时候忽略（为了兼容过去）
+    # 2. Ignore on load
     def on_load_checkpoint(self, checkpoint):
         state_dict = checkpoint["state_dict"]
         keys_to_remove = [k for k in state_dict.keys() if k.startswith("utmos.")]
         if keys_to_remove:
-            # 仅在主进程打印提示
+            # only print the notice on the main process
             if self.global_rank == 0:
                 print(f"Ignored {len(keys_to_remove)} 'utmos' keys from checkpoint load.")
             for k in keys_to_remove:
@@ -517,7 +517,7 @@ class MiMoWavLMVAEExp(VocosExp):
         max_steps = self.trainer.max_steps // 2  # Max steps per optimizer
         scheduler_disc = transformers.get_cosine_schedule_with_warmup(
             opt_disc, num_warmup_steps=self.hparams.num_warmup_steps, num_training_steps=max_steps,
-        ) #线性预热，余弦衰减
+        ) #linear warmup, cosine decay
         scheduler_gen = transformers.get_cosine_schedule_with_warmup(
             opt_gen, num_warmup_steps=self.hparams.num_warmup_steps, num_training_steps=max_steps,
         )
@@ -725,7 +725,7 @@ class MiMoWavLMVAEExp(VocosExp):
             *_, audio_in, audio_pred = outputs[0].values()
             self.logger.experiment.add_audio(
                 "val_in", audio_in.data.cpu().numpy(), self.global_step, self.hparams.sample_rate
-            ) #batch的第一条音频
+            ) #first audio clip in the batch
             self.logger.experiment.add_audio(
                 "val_pred", audio_pred.data.cpu().numpy(), self.global_step, self.hparams.sample_rate
             )

@@ -1,10 +1,10 @@
 """
-示例二：从 WavCube 表征恢复音频
+Example 2: Recover audio from a WavCube representation
 
-将 wav_to_feature.py 保存的 .pt 文件（或任意形状 [T_feat, 128] 的张量）
-传入 WavCube Backbone（MiMoBackbone），重建原始波形。
+Feed the .pt file saved by wav_to_feature.py (or any tensor of shape [T_feat, 128])
+into the WavCube Backbone (MiMoBackbone) to reconstruct the original waveform.
 
-用法:
+Usage:
     python feature_to_wav.py \
         --feature 19_198_000000_000002.pt \
         --config configs/WavCube-stage2.yaml \
@@ -29,27 +29,27 @@ def parse_args():
         "--feature",
         type=str,
         default="19_198_000000_000002.pt",
-        help="输入 .pt 文件路径（wav_to_feature.py 的输出）",
+        help="Path to the input .pt file (output of wav_to_feature.py)",
     )
     parser.add_argument(
         "--config",
         type=str,
         default="configs/WavCube-stage2.yaml",
-        help="模型配置文件路径",
+        help="Path to the model config file",
     )
     parser.add_argument(
         "--ckpt",
         type=str,
         default="logs/WavCube/checkpoints/vocos_checkpoint_epoch=177_step=195000_val_loss=3.3080.ckpt",
-        help="模型 checkpoint 路径",
+        help="Path to the model checkpoint",
     )
     parser.add_argument(
         "--output",
         type=str,
         default=None,
-        help="输出 wav 文件路径（默认在 .pt 文件同目录下生成 *_recon.wav）",
+        help="Path to the output wav file (defaults to *_recon.wav generated alongside the .pt file)",
     )
-    parser.add_argument("--sample-rate", type=int, default=16000, help="目标采样率")
+    parser.add_argument("--sample-rate", type=int, default=16000, help="Target sample rate")
     parser.add_argument(
         "--device",
         type=str,
@@ -59,7 +59,7 @@ def parse_args():
 
 
 def load_model(config_path: str, ckpt_path: str, device: str) -> Vocos:
-    """加载 WavCube 模型。"""
+    """Load the WavCube model."""
     print(f"[INFO] Loading config     : {config_path}")
     vocos = Vocos.from_config(config_path)
 
@@ -78,9 +78,9 @@ def load_model(config_path: str, ckpt_path: str, device: str) -> Vocos:
 
 def load_feature(path: str, device: str) -> tuple:
     """
-    从 .pt 文件读取 WavCube 表征。
+    Read the WavCube representation from a .pt file.
 
-    返回:
+    Returns:
         feature  : Tensor [T_feat, 128]
         sample_rate: int
     """
@@ -91,7 +91,7 @@ def load_feature(path: str, device: str) -> tuple:
         sample_rate = payload.get("sample_rate", 16000)
         source = payload.get("source", Path(path).name)
     else:
-        # 兼容直接保存 Tensor 的情况
+        # Handle the case where a Tensor was saved directly
         feature = payload
         sample_rate = 16000
         source = Path(path).name
@@ -103,31 +103,31 @@ def load_feature(path: str, device: str) -> tuple:
 def main():
     args = parse_args()
 
-    # 输出路径
+    # Output path
     if args.output is None:
         pt_path = Path(args.feature)
         output_path = str(pt_path.with_name(pt_path.stem + "_recon.wav"))
     else:
         output_path = args.output
 
-    # 加载模型
+    # Load model
     vocos = load_model(args.config, args.ckpt, args.device)
 
-    # 加载表征
+    # Load representation
     feature, sample_rate = load_feature(args.feature, args.device)  # [T_feat, 128]
 
     # -------------------------------------------------------------------------
-    # 从 WavCube 表征重建音频
-    #   vocos.decode() 执行：
-    #     MiMoBackbone（upsample_proj + AudioDecoder.forward_50hz）
-    #     将 [B, T_feat, 128] -> 波形 [B, T_wav]
+    # Reconstruct audio from the WavCube representation
+    #   vocos.decode() runs:
+    #     MiMoBackbone (upsample_proj + AudioDecoder.forward_50hz)
+    #     turns [B, T_feat, 128] -> waveform [B, T_wav]
     # -------------------------------------------------------------------------
     feature_batch = feature.unsqueeze(0)  # [1, T_feat, 128]
 
     with torch.no_grad():
         recon = vocos.decode(feature_batch)   # [B, T_wav]  or  [B, 1, T_wav]
 
-    # 统一形状为 [1, T_wav]（torchaudio.save 需要二维张量）
+    # Normalize the shape to [1, T_wav] (torchaudio.save requires a 2-D tensor)
     recon = recon.squeeze(0)          # [T_wav] or [1, T_wav]
     if recon.dim() == 1:
         recon = recon.unsqueeze(0)    # [1, T_wav]
@@ -136,7 +136,7 @@ def main():
     duration = recon.shape[-1] / sample_rate
     print(f"[INFO] Reconstructed audio: shape={tuple(recon.shape)}  |  {duration:.2f} s")
 
-    # 保存音频
+    # Save audio
     torchaudio.save(output_path, recon, sample_rate=sample_rate)
     print(f"[INFO] Audio saved -> {output_path}")
 
