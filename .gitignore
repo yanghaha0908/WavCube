@@ -165,6 +165,5 @@ logs/
 
 ckpts
 .vscode/
-scripts/
 upload_to_hf.py
 README_ref.md
